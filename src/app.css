@@ -1,0 +1,47 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --color-primary: 99 102 241;
+    --color-primary-light: 129 140 248;
+    --color-primary-dark: 79 70 229;
+    --color-secondary: 16 185 129;
+    --color-secondary-light: 52 211 153;
+    --color-secondary-dark: 5 150 105;
+    --color-background: 255 255 255;
+    --color-background-light: 243 244 246;
+    --color-background-dark: 229 231 235;
+    --color-text: 17 24 39;
+    --color-text-muted: 107 114 128;
+    --color-text-dark: 55 65 81;
+    --color-accent: 245 158 11;
+    --color-accent-light: 251 191 36;
+    --color-accent-dark: 217 119 6;
+    --color-error: 239 68 68;
+    --color-success: 34 197 94;
+    --color-warning: 249 115 22;
+  }
+
+  .dark {
+    --color-primary: 99 102 241;
+    --color-primary-light: 129 140 248;
+    --color-primary-dark: 79 70 229;
+    --color-secondary: 16 185 129;
+    --color-secondary-light: 52 211 153;
+    --color-secondary-dark: 5 150 105;
+    --color-background: 17 24 39;
+    --color-background-light: 31 41 55;
+    --color-background-dark: 3 7 18;
+    --color-text: 243 244 246;
+    --color-text-muted: 156 163 175;
+    --color-text-dark: 107 114 128;
+    --color-accent: 245 158 11;
+    --color-accent-light: 251 191 36;
+    --color-accent-dark: 217 119 6;
+    --color-error: 239 68 68;
+    --color-success: 34 197 94;
+    --color-warning: 249 115 22;
+  }
+}
