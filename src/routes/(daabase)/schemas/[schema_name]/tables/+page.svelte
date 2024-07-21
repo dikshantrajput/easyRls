@@ -10,7 +10,6 @@
   $: ({ tables, schemaName, dbUrl } = data);
 
   const manageTableRls = (tableName: string) => {
-    console.log(tableName);
     goto(
       `/schemas/${schemaName}/tables/${tableName}?db-url=${encodeURIComponent(dbUrl)}`,
     );

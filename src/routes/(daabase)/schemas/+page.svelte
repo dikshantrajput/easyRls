@@ -7,6 +7,17 @@
 
   const { schemas, dbUrl } = data;
 
+  function getDbNameFromUrl(url: string) {
+    try {
+      const splittedUrl = url.split("/");
+      const dbName = splittedUrl[splittedUrl.length - 1];
+      return dbName || null;
+    } catch (error) {
+      console.error("Invalid connection URL:", error?.message);
+      return null;
+    }
+  }
+
   const handleViewSchemaTableClick = (event: CustomEvent<string>) => {
     const schemaName = event.detail;
     goto(`schemas/${schemaName}/tables?db-url=${encodeURIComponent(dbUrl)}`);
@@ -14,5 +25,9 @@
 </script>
 
 <div class="max-w-6xl mx-auto p-6">
-  <SchemaList {schemas} on:viewTable={handleViewSchemaTableClick} />
+  <SchemaList
+    {schemas}
+    on:viewTable={handleViewSchemaTableClick}
+    dbName={getDbNameFromUrl(dbUrl)}
+  />
 </div>

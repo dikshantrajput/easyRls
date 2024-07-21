@@ -1,6 +1,8 @@
 import type { PostgresManagerInterface } from "./postgres.manager";
+import { v4 as uuid4 } from "uuid";
 
 export interface RlsPolicyInterface {
+  id: string;
   name: string;
   type: "PERMISSIVE" | "RESTRICTIVE";
   roles: string[];
@@ -94,7 +96,7 @@ export default class RlsManager implements RlsManagerInterface {
   }
 
   private generateDeleteRlsPolicyQuery(name: string) {
-    return `DROP POLICY IF EXISTS ${name} ON ${this.options.schemaName}.${this.options.tableName};`;
+    return `DROP POLICY ${name} ON ${this.options.schemaName}.${this.options.tableName};`;
   }
 
   async enable(): Promise<boolean> {
@@ -128,6 +130,7 @@ export default class RlsManager implements RlsManagerInterface {
 
     if (!error && data) {
       return data.map((policy) => ({
+        id: uuid4(),
         crud: policy.cmd,
         name: policy.policyname,
         roles: policy.roles.length > 2
@@ -152,6 +155,7 @@ export default class RlsManager implements RlsManagerInterface {
     if (!error && data) {
       return data?.[0]
         ? {
+          id: uuid4(),
           crud: data[0].cmd,
           name: data[0].policyname,
           roles: data[0].roles.length > 2

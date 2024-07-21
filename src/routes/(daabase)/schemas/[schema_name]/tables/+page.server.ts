@@ -7,8 +7,6 @@ export const load: ServerLoad = async ({ parent, params, depends }) => {
   const data = await parent();
   const { dbUrl } = data;
   const schemaName = params.schema_name;
-  console.log(dbUrl, schemaName);
-
   if (!dbUrl || !schemaName) throw error(500, "Schema not valid");
   const postgresManager = await initializePostgresManager(dbUrl);
   const tableManager = new TableManager(postgresManager, {

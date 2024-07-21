@@ -1,14 +1,23 @@
 <script lang="ts">
-  import { fly } from "svelte/transition";
+  import { fade, fly } from "svelte/transition";
   import { quintOut } from "svelte/easing";
   import type { RlsPolicyInterface } from "$lib/managers/rls.manager";
+  import AlertPopup from "./AlertPopup.svelte";
+  import { createEventDispatcher } from "svelte";
+  import Button from "./Button.svelte";
 
-  export let policies: RlsPolicyInterface[] = [];
-  console.log(policies);
+  export let policies: RlsPolicyInterface[] = [],
+    tableName: string,
+    schemaName: string;
 
   let searchTerm = "";
   let editingPolicy: RlsPolicyInterface | null = null;
   let showEditPanel = false;
+  let alertPopupComponent: AlertPopup;
+
+  const dispatch = createEventDispatcher<{
+    delete: { id: string };
+  }>();
 
   $: filteredPolicies = policies.filter(
     (policy) =>
@@ -45,9 +54,11 @@
     closeEditPanel();
   }
 
-  function deletePolicy(id: string) {
-    // Implement delete logic here
-    console.log("Deleting policy:", id);
+  async function deletePolicy(id: string) {
+    const isConfirmed = await alertPopupComponent.confirmPopupOperation();
+    if (isConfirmed) {
+      dispatch("delete", { id });
+    }
   }
 
   function toggleAllCrud() {
@@ -59,13 +70,13 @@
 
 <div class="p-6 bg-background">
   <div class="flex justify-between items-center mb-6">
-    <h1 class="text-3xl font-bold text-text">RLS Policies for Schema.Table</h1>
-    <button
-      on:click={addNewPolicy}
-      class="px-4 py-2 bg-primary text-background rounded-md hover:bg-primary-dark transition-colors"
-    >
-      Add New Policy
-    </button>
+    <h2 class="text-2xl font-semibold text-text mb-6">
+      RLS Policies in <span class="text-primary"
+        ><i>{schemaName}.{tableName}</i></span
+      >
+    </h2>
+
+    <Button on:click={addNewPolicy}>Add New Policy</Button>
   </div>
 
   <input
@@ -75,38 +86,49 @@
     class="w-full p-2 mb-6 border border-background-dark rounded-md bg-background-light text-text"
   />
 
-  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-    {#each filteredPolicies as policy (policy.id)}
-      <div
-        class="bg-background-light rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
-      >
-        <h2 class="text-xl font-semibold text-text mb-2">{policy.name}</h2>
-        <p class="text-text-muted mb-1">
-          Type: <span class="font-medium">{policy.type}</span>
-        </p>
-        <p class="text-text-muted mb-1">
-          Role: <span class="font-medium">{policy.roles}</span>
-        </p>
-        <p class="text-text-muted mb-4">
-          CRUD: <span class="font-medium">{policy.crud}</span>
-        </p>
-        <div class="flex justify-end">
-          <button
-            on:click={() => editPolicy(policy)}
-            class="text-secondary hover:text-secondary-dark transition-colors mr-4"
-          >
-            Edit
-          </button>
-          <button
-            on:click={() => deletePolicy(policy.id)}
-            class="text-error hover:text-red-700 transition-colors"
-          >
-            Delete
-          </button>
+  {#if filteredPolicies.length === 0}
+    <p class="text-text-muted" transition:fade>
+      No tables found in this schema.
+    </p>
+  {:else}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {#each filteredPolicies as policy, i (policy.id)}
+        <div
+          class="bg-background-light rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+          transition:fly={{
+            y: 50,
+            duration: 300,
+            delay: Math.min(i * 10, 100),
+          }}
+        >
+          <h2 class="text-xl font-semibold text-text mb-2">{policy.name}</h2>
+          <p class="text-text-muted mb-1">
+            Type: <span class="font-medium">{policy.type}</span>
+          </p>
+          <p class="text-text-muted mb-1">
+            Role: <span class="font-medium">{policy.roles}</span>
+          </p>
+          <p class="text-text-muted mb-4">
+            CRUD: <span class="font-medium">{policy.crud}</span>
+          </p>
+          <div class="flex justify-end">
+            <button
+              on:click={() => editPolicy(policy)}
+              class="text-secondary hover:text-secondary-dark transition-colors mr-4"
+            >
+              Edit
+            </button>
+            <button
+              on:click={() => deletePolicy(policy.id)}
+              class="text-error hover:text-red-700 transition-colors"
+            >
+              Delete
+            </button>
+          </div>
         </div>
-      </div>
-    {/each}
-  </div>
+      {/each}
+    </div>
+  {/if}
 </div>
 
 {#if showEditPanel}
@@ -234,3 +256,11 @@
     </form>
   </div>
 {/if}
+
+<AlertPopup
+  title="Delete Confirmation"
+  message="Are you sure you want to delete this policy? This action cannot be undone."
+  cancelText="Cancel"
+  confirmText="Delete"
+  bind:this={alertPopupComponent}
+/>

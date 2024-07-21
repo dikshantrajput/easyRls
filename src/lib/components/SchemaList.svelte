@@ -3,8 +3,14 @@
   import { createEventDispatcher } from "svelte";
   import { fade, fly } from "svelte/transition";
 
-  // TODO: show database name
-  export let schemas: DatabaseSchemaInterface[] = [];
+  export let schemas: DatabaseSchemaInterface[] = [],
+    dbName: string;
+
+  let searchTerm = "";
+
+  $: filteredSchemas = schemas.filter((schema) =>
+    schema.name.toLowerCase().includes(searchTerm.toLowerCase()),
+  );
 
   const dispatch = createEventDispatcher<{
     viewTable: string;
@@ -16,14 +22,24 @@
 </script>
 
 <div class="max-w-4xl mx-auto p-6 bg-background rounded-lg shadow-md">
-  <h2 class="text-2xl font-semibold text-text mb-6">Database Schemas</h2>
-  {#if schemas.length === 0}
+  <h2 class="text-2xl font-semibold text-text mb-6">
+    Schemas in <span class="text-primary"><i>{dbName}</i></span>
+  </h2>
+
+  <input
+    type="text"
+    placeholder="Search schemas..."
+    bind:value={searchTerm}
+    class="w-full p-2 mb-6 border border-background-dark rounded-md bg-background-light text-text"
+  />
+
+  {#if filteredSchemas.length === 0}
     <p class="text-text-muted" transition:fade>
       No schemas found in the database.
     </p>
   {:else}
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-      {#each schemas as schema, i (schema.name)}
+      {#each filteredSchemas as schema, i (schema.name)}
         <div
           class="bg-background-light rounded-lg shadow-sm hover:shadow-md transition-shadow duration-200 overflow-hidden flex flex-col justify-between"
           transition:fly={{ y: 50, duration: 300, delay: i * 50 }}

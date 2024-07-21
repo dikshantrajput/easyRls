@@ -2,7 +2,8 @@ import initializePostgresManager from "$lib/managers/postgres.manager";
 import RlsManager from "$lib/managers/rls.manager";
 import { error, type ServerLoad } from "@sveltejs/kit";
 
-export const load: ServerLoad = async ({ parent, params }) => {
+export const load: ServerLoad = async ({ parent, params, depends }) => {
+  depends("policies:fetch")
   const data = await parent();
   const { dbUrl } = data;
   const schemaName = params.schema_name;
@@ -14,5 +15,5 @@ export const load: ServerLoad = async ({ parent, params }) => {
     tableName,
   });
   const policies = await tableManager.getAllPolicies();
-  return { policies, schemaName };
+  return { policies, schemaName, tableName };
 };
