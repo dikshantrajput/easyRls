@@ -5,6 +5,7 @@
   import { ThemesEnum } from "$lib/types/core";
   import ThemeToggler from "$lib/components/ThemeToggler.svelte";
   import { THEME_LOCALSTORAGE_KEY } from "$lib/constants";
+  import { Toaster } from "svelte-sonner";
 
   onMount(() => {
     const savedTheme = localStorage.getItem(
@@ -27,3 +28,5 @@
     <slot />
   </main>
 </div>
+
+<Toaster duration={3000} richColors />

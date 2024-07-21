@@ -1,17 +1,33 @@
-<script>
-  import { theme } from "$lib/stores/theme";
+<script lang="ts">
+  import { enhance } from "$app/forms";
+  import { goto } from "$app/navigation";
+  import ConnectionStringInput from "$lib/components/ConnectionStringInput.svelte";
+  import { dbConnectionStringStore } from "$lib/stores/db";
+  import type { SubmitFunction } from "@sveltejs/kit";
+  import { toast } from "svelte-sonner";
+
+  let isLoading = false;
+
+  const handleDatabaseConnection: SubmitFunction = () => {
+    return async ({ result }) => {
+      if (result.type === "success") {
+        toast.success("Connection successful");
+        dbConnectionStringStore.set(result?.data?.url as string);
+        goto(`/schemas?db-url=${encodeURIComponent(result?.data?.url)}`);
+      } else if (result.type === "error") {
+        toast.error(result.error.message);
+      }
+    };
+  };
 </script>
 
-<div class="p-4 bg-background-light rounded-lg">
-  <h1 class="text-2xl font-bold text-primary">Welcome to my app</h1>
-  <p class="text-text-muted mt-2">
-    This text adapts to both light and dark modes.
-  </p>
-  <button
-    class="mt-4 px-4 py-2 bg-secondary text-background rounded hover:bg-secondary-dark transition-colors"
-  >
-    Get Started
-  </button>
+<div class="max-w-2xl mx-auto p-6">
+  <h1 class="text-3xl font-bold text-text mb-6">EasyRLS Database Connection</h1>
+  <form method="post" action="" use:enhance={handleDatabaseConnection}>
+    <ConnectionStringInput showButtonLoader={isLoading} />
+  </form>
 </div>
 
-<p>Current theme: {$theme}</p>
+<!-- <TableList schemaName="onbo" tables={schemaTables} />
+
+<PolicyManager /> -->

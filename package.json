@@ -16,6 +16,7 @@
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.28.1",
+		"@prisma/client": "^5.17.0",
 		"@snaplet/copycat": "^5.0.0",
 		"@snaplet/seed": "^0.97.20",
 		"@sveltejs/adapter-auto": "^3.0.0",
@@ -32,6 +33,7 @@
 		"postcss": "^8.4.39",
 		"prettier": "^3.1.1",
 		"prettier-plugin-svelte": "^3.1.2",
+		"prisma": "^5.17.0",
 		"svelte": "^4.2.7",
 		"svelte-check": "^3.6.0",
 		"tailwindcss": "^3.4.4",
@@ -43,6 +45,7 @@
 	},
 	"type": "module",
 	"dependencies": {
-		"@supabase/supabase-js": "^2.44.3"
+		"@supabase/supabase-js": "^2.44.3",
+		"svelte-sonner": "^0.3.27"
 	}
 }
