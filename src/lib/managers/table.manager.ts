@@ -13,7 +13,9 @@ interface DatabaseTableResponseInterface {
 }
 
 interface TableManagerInterface {
+  isRlsEnabled(tableName: string): Promise<boolean>;
   enableRls(tableName: string): Promise<boolean>;
+  disableRls(tableName: string): Promise<boolean>;
   getAllTables(): Promise<DatabaseTableInterface[]>;
 }
 
@@ -33,8 +35,24 @@ export default class TableManager implements TableManagerInterface {
     this.options = options;
   }
 
+  private generateRlsStatusQuery(tableName: string) {
+    return `
+      SELECT 
+      c.relrowsecurity AS rls_enabled
+      FROM pg_class c
+      JOIN pg_namespace n ON n.oid = c.relnamespace
+      WHERE c.relname = '${tableName}'
+        AND n.nspname = '${this.options.schemaName}'
+        AND c.relkind = 'r';
+  `;
+  }
+
   private generateEnableRlsQuery(tableName: string) {
     return `ALTER TABLE ${this.options.schemaName}.${tableName} ENABLE ROW LEVEL SECURITY;`;
+  }
+
+  private generateDisableRlsQuery(tableName: string) {
+    return `ALTER TABLE ${this.options.schemaName}.${tableName} DISABLE ROW LEVEL SECURITY;`;
   }
 
   private generateGetAllTablesQuery() {
@@ -63,20 +81,48 @@ ORDER BY
     `;
   }
 
+  async isRlsEnabled(tableName: string): Promise<boolean> {
+    const { data, error } = await this.pgManager.query<
+      { rls_enabled: boolean }
+    >(
+      this.generateRlsStatusQuery(tableName),
+    );
+
+    if (error) {
+      throw new Error(error);
+    }
+
+    return !!data?.[0]?.rls_enabled;
+  }
+
   async enableRls(tableName: string): Promise<boolean> {
     const { error } = await this.pgManager.query(
       this.generateEnableRlsQuery(tableName),
     );
 
-    if(error){
+    if (error) {
       throw new Error(error);
     }
-    
+
+    return true;
+  }
+
+  async disableRls(tableName: string): Promise<boolean> {
+    const { error } = await this.pgManager.query(
+      this.generateDisableRlsQuery(tableName),
+    );
+
+    if (error) {
+      throw new Error(error);
+    }
+
     return true;
   }
 
   async getAllTables(): Promise<DatabaseTableInterface[]> {
-    const { data, error } = await this.pgManager.query<DatabaseTableResponseInterface>(
+    const { data, error } = await this.pgManager.query<
+      DatabaseTableResponseInterface
+    >(
       this.generateGetAllTablesQuery(),
     );
 
@@ -84,7 +130,7 @@ ORDER BY
       return data.map((table) => ({
         name: table.table_name,
         rlsEnabled: table.rls_enabled,
-        rlsPoliciesCount: parseInt(table.rls_policy_count)
+        rlsPoliciesCount: parseInt(table.rls_policy_count),
       }));
     }
 

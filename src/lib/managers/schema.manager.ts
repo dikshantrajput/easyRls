@@ -2,12 +2,12 @@ import type { PostgresManagerInterface } from "./postgres.manager";
 
 export interface DatabaseSchemaInterface {
   name: string;
-  tableCount: number
+  tableCount: number;
 }
 
 interface DatabaseSchemaResponseInterface {
   table_schema: string;
-  table_count: number
+  table_count: number;
 }
 
 interface SchemaManagerInterface {
@@ -52,19 +52,18 @@ export default class SchemaManager implements SchemaManagerInterface {
   }
 
   async getAllSchemas(): Promise<DatabaseSchemaInterface[]> {
-    const { data, error } = await this.pgManager.query<DatabaseSchemaResponseInterface>(
+    const { data, error } = await this.pgManager.query<
+      DatabaseSchemaResponseInterface
+    >(
       this.generateGetAllSchemasQuery(),
     );
     if (!error && data) {
       return data?.map((schema) => ({
         name: schema.table_schema,
-        tableCount: schema.table_count
-      }))
+        tableCount: schema.table_count,
+      }));
     }
 
     throw new Error(error);
   }
-
 }
-
-

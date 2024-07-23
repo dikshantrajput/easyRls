@@ -8,6 +8,7 @@
 
   export let policies: RlsPolicyInterface[] = [],
     tableName: string,
+    tableRlsEnabled: boolean,
     schemaName: string;
 
   let searchTerm = "";
@@ -17,6 +18,8 @@
 
   const dispatch = createEventDispatcher<{
     delete: { id: string };
+    disable: void;
+    enable: void;
   }>();
 
   $: filteredPolicies = policies.filter(
@@ -36,6 +39,14 @@
       withCheck: "",
     };
     showEditPanel = true;
+  }
+
+  function disableRlsPolicy() {
+    dispatch("disable");
+  }
+
+  function enableRlsPolicy() {
+    dispatch("enable");
   }
 
   function editPolicy(policy: RlsPolicyInterface) {
@@ -76,7 +87,18 @@
       >
     </h2>
 
-    <Button on:click={addNewPolicy}>Add New Policy</Button>
+    <div class="flex gap-2">
+      <Button on:click={addNewPolicy}>Add New Policy</Button>
+      {#if tableRlsEnabled}
+        <Button variant={"accent"} on:click={disableRlsPolicy}
+          >Disable Policy</Button
+        >
+      {:else}
+        <Button variant={"secondary"} on:click={enableRlsPolicy}
+          >Enable Policy</Button
+        >
+      {/if}
+    </div>
   </div>
 
   <input
