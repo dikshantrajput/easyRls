@@ -27,7 +27,3 @@
     <ConnectionStringInput showButtonLoader={isLoading} />
   </form>
 </div>
-
-<!-- <TableList schemaName="onbo" tables={schemaTables} />
-
-<PolicyManager /> -->

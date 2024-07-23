@@ -2,14 +2,14 @@
   import type { DatabaseTableInterface } from "$lib/managers/table.manager";
   import { createEventDispatcher } from "svelte";
   import { fade, fly } from "svelte/transition";
+  import Button from "./Button.svelte";
 
   export let schemaName: string,
     tables: DatabaseTableInterface[] = [];
 
   const dispatch = createEventDispatcher<{
-    action: {
+    manage: {
       tableName: string;
-      action: "manage" | "enable";
     };
   }>();
   let searchTerm = "";
@@ -18,11 +18,8 @@
     table.name.toLowerCase().includes(searchTerm.toLowerCase()),
   );
 
-  const dispatchEnableOrManageRlsClickEvent = (
-    action: "manage" | "enable",
-    tableName: string,
-  ) => {
-    dispatch("action", { action, tableName });
+  const dispatchManageRlsClickEvent = (tableName: string) => {
+    dispatch("manage", { tableName });
   };
 </script>
 
@@ -72,19 +69,12 @@
                 </span>
               {/if}
             </div>
-            <button
-              class="w-full py-2 px-4 rounded-md text-sm font-medium transition-colors duration-200
-              {table.rlsEnabled
-                ? 'bg-secondary text-white hover:bg-secondary-dark'
-                : 'bg-primary text-white hover:bg-primary-dark'}"
-              on:click={() =>
-                dispatchEnableOrManageRlsClickEvent(
-                  table.rlsEnabled ? "manage" : "enable",
-                  table.name,
-                )}
+            <Button
+              on:click={() => dispatchManageRlsClickEvent(table.name)}
+              fullWidth
             >
-              {table.rlsEnabled ? "Manage Policies" : "Enable RLS"}
-            </button>
+              Manage Policies
+            </Button>
           </div>
         </div>
       {/each}
