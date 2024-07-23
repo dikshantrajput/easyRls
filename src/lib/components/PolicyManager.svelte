@@ -17,9 +17,12 @@
   let alertPopupComponent: AlertPopup;
 
   const dispatch = createEventDispatcher<{
-    delete: { id: string };
-    disable: void;
-    enable: void;
+    action: {
+      type: "delete" | "disable" | "enable";
+      data?: {
+        id?: string;
+      };
+    };
   }>();
 
   $: filteredPolicies = policies.filter(
@@ -42,11 +45,11 @@
   }
 
   function disableRlsPolicy() {
-    dispatch("disable");
+    dispatch("action", { type: "disable" });
   }
 
   function enableRlsPolicy() {
-    dispatch("enable");
+    dispatch("action", { type: "enable" });
   }
 
   function editPolicy(policy: RlsPolicyInterface) {
@@ -68,7 +71,7 @@
   async function deletePolicy(id: string) {
     const isConfirmed = await alertPopupComponent.confirmPopupOperation();
     if (isConfirmed) {
-      dispatch("delete", { id });
+      dispatch("action", { type: "delete", data: { id } });
     }
   }
 

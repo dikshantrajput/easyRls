@@ -29,22 +29,13 @@
     }
   };
 
-  const handleDeleteRlsPolicyEvent = (event: CustomEvent<{ id: string }>) => {
-    const id = event.detail.id;
+  const handleDeleteRlsPolicyEvent = (id: string) => {
     const policyToDelete = policies.find((policy) => policy.id === id);
     if (!policyToDelete) {
       toast.error("Policy to delete not found");
       return;
     }
     deleteRlsPolicy(policyToDelete.name);
-  };
-
-  const handleDisableRlsPolicyEvent = () => {
-    disableRlsOnTable(tableName);
-  };
-
-  const handleEnableRlsPolicyEvent = () => {
-    enableRlsOnTable(tableName);
   };
 
   const deleteRlsPolicy = async (policyName: string) => {
@@ -91,15 +82,25 @@
   };
 
   const handleActionClick = (
-    event: CustomEvent<{ action: "manage" | "enable"; tableName: string }>,
+    event: CustomEvent<{
+      type: "delete" | "disable" | "enable";
+      data?: {
+        id?: string;
+      };
+    }>,
   ) => {
-    const { action, tableName } = event.detail;
+    const { type, data } = event.detail;
 
-    switch (action) {
+    switch (type) {
       case "enable":
         enableRlsOnTable(tableName);
         break;
-      case "manage":
+      case "disable":
+        disableRlsOnTable(tableName);
+        break;
+      case "delete":
+        if (!data?.id) throw Error("Invalid action data");
+        handleDeleteRlsPolicyEvent(data.id);
         break;
       default:
         console.error("Action not define");
@@ -111,10 +112,8 @@
   <PolicyManager
     tableRlsEnabled={isRlsEnabledOnTable}
     {policies}
-    on:delete={handleDeleteRlsPolicyEvent}
     {schemaName}
     {tableName}
-    on:disable={handleDisableRlsPolicyEvent}
-    on:enable={handleEnableRlsPolicyEvent}
+    on:action={handleActionClick}
   />
 </div>
