@@ -9,6 +9,7 @@
 
   interface EditingPolicyInterface extends RlsPolicyInterface {
     withCheckEnabled: boolean;
+    action: "CREATE" | "EDIT";
   }
 
   export let policies: RlsPolicyInterface[] = [];
@@ -25,10 +26,11 @@
 
   const dispatch = createEventDispatcher<{
     action: {
-      type: "delete" | "disable" | "enable" | "create";
+      type: "delete" | "disable" | "enable" | "create" | "edit";
       data?: {
         id?: string;
         createPayload?: RlsPolicyInterface;
+        updatePayload?: RlsPolicyInterface;
       };
     };
   }>();
@@ -51,6 +53,7 @@
       using: "",
       withCheck: "",
       withCheckEnabled: false,
+      action: "CREATE",
     };
     showEditPanel = true;
   }
@@ -68,6 +71,7 @@
       ...policy,
       roles: [...policy.roles],
       withCheckEnabled: !!policy.withCheck,
+      action: "EDIT",
     });
     showEditPanel = true;
   }
@@ -111,10 +115,18 @@
       if (!editingPolicy.withCheckEnabled) {
         editingPolicy.withCheck = "";
       }
-      dispatch("action", {
-        type: "create",
-        data: { createPayload: editingPolicy },
-      });
+
+      if (editingPolicy.action === "CREATE") {
+        dispatch("action", {
+          type: "create",
+          data: { createPayload: editingPolicy },
+        });
+      } else {
+        dispatch("action", {
+          type: "edit",
+          data: { updatePayload: editingPolicy },
+        });
+      }
     }
   }
 
@@ -133,12 +145,25 @@
     }
   }
 
-  $: isInsertSelected = editingPolicy?.crud === "INSERT" ?? false;
-  $: shouldWithCheckBlockVisible = !["SELECT", "DELETE"].includes(
-    editingPolicy?.crud ?? "",
-  );
-  $: if (editingPolicy?.crud === "INSERT")
-    editingPolicy.withCheckEnabled = true;
+  let isInsertSelected = false,
+    shouldWithCheckBlockVisible = false;
+
+  $: if (editingPolicy?.crud) {
+    if (editingPolicy?.crud === "INSERT") {
+      isInsertSelected = true;
+      shouldWithCheckBlockVisible = false;
+      editingPolicy.withCheckEnabled = true;
+    } else if (
+      editingPolicy?.crud !== "SELECT" &&
+      editingPolicy?.crud !== "DELETE"
+    ) {
+      shouldWithCheckBlockVisible = true;
+      isInsertSelected = false;
+    } else {
+      shouldWithCheckBlockVisible = false;
+      isInsertSelected = false;
+    }
+  }
 </script>
 
 <div class="p-6 bg-background">
@@ -220,7 +245,7 @@
     transition:fly={{ x: 300, duration: 300, easing: quintOut }}
   >
     <h2 class="text-2xl font-bold mb-6">
-      {editingPolicy.id ? "Edit" : "Add"} Policy
+      {editingPolicy.action == "EDIT" ? "Edit" : "Add"} Policy
     </h2>
     <form on:submit|preventDefault={savePolicy} class="space-y-4">
       <div>
@@ -229,8 +254,9 @@
           id="name"
           type="text"
           bind:value={editingPolicy.name}
-          class="w-full p-2 border border-background-dark rounded-md bg-background text-text"
+          class="w-full p-2 border border-background-dark rounded-md bg-background text-text disabled:text-gray-400"
           required
+          disabled={editingPolicy.action === "EDIT"}
         />
         {#if errors.name}
           <p class="text-error text-sm mt-1">{errors.name}</p>
@@ -248,6 +274,7 @@
               value="PERMISSIVE"
               class="form-radio text-primary"
               required
+              disabled={editingPolicy.action === "EDIT"}
             />
             <span class="ml-2">Permissive</span>
           </label>
@@ -258,6 +285,7 @@
               value="RESTRICTIVE"
               class="form-radio text-primary"
               required
+              disabled={editingPolicy.action === "EDIT"}
             />
             <span class="ml-2">Restrictive</span>
           </label>
@@ -277,6 +305,7 @@
                 checked={editingPolicy?.roles?.includes(role.name)}
                 on:change={() => toggleRole(role.name)}
                 class="form-checkbox text-primary"
+                disabled={editingPolicy.action === "EDIT"}
               />
               <span class="ml-2">{role.name}</span>
             </label>
@@ -300,6 +329,7 @@
                 value={operation}
                 type="radio"
                 class="form-checkbox text-primary"
+                disabled={editingPolicy.action === "EDIT"}
               />
               <span class="ml-2">{operation}</span>
             </label>
@@ -352,6 +382,16 @@
                 type="checkbox"
                 class="form-checkbox text-primary"
                 bind:checked={editingPolicy.withCheckEnabled}
+                on:change={(event) => {
+                  if (!editingPolicy?.withCheckEnabled) {
+                    if (editingPolicy?.action === "EDIT") {
+                      editingPolicy.withCheckEnabled = true;
+                      alert(
+                        "With check expression can not be removed once added. please delete and recreated the policy",
+                      );
+                    }
+                  }
+                }}
               />
               <span class="ml-2 text-text-muted">Add WITH CHECK expression</span
               >

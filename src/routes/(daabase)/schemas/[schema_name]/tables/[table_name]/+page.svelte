@@ -77,12 +77,38 @@
     const data = await res.json();
 
     if (res.ok && data.result) {
-      toast.success(`${tableName} rls created`);
+      toast.success(`${tableName} policy created`);
       if (policyManagerInstance) policyManagerInstance.closeEditPanel();
       invalidate("policies:fetch");
     } else {
       toast.error(
-        String(data.message ?? `Error creating rls for table: ${tableName}`),
+        String(data.message ?? `Error creating policy for table: ${tableName}`),
+      );
+    }
+  };
+
+  const updateRlsPolicy = async (payload: RlsPolicyInterface) => {
+    toast.loading(
+      `Updating RLS policy for table: ${tableName}, policy: ${payload.name}`,
+    );
+    const res = await fetch("/api/updateTableRls", {
+      method: "POST",
+      body: JSON.stringify({
+        schemaName,
+        tableName,
+        dbUrl,
+        payload,
+      }),
+    });
+    const data = await res.json();
+
+    if (res.ok && data.result) {
+      toast.success(`${payload.name} policy updated`);
+      if (policyManagerInstance) policyManagerInstance.closeEditPanel();
+      invalidate("policies:fetch");
+    } else {
+      toast.error(
+        String(data.message ?? `Error updating policy for table: ${tableName}`),
       );
     }
   };
@@ -111,10 +137,11 @@
 
   const handleActionClick = (
     event: CustomEvent<{
-      type: "delete" | "disable" | "enable" | "create";
+      type: "delete" | "disable" | "enable" | "create" | "edit";
       data?: {
         id?: string;
         createPayload?: RlsPolicyInterface;
+        updatePayload?: RlsPolicyInterface;
       };
     }>,
   ) => {
@@ -134,6 +161,10 @@
       case "create":
         if (!data?.createPayload) throw Error("Invalid action data");
         createRlsPolicy(data.createPayload);
+        break;
+      case "edit":
+        if (!data?.updatePayload) throw Error("Invalid action data");
+        updateRlsPolicy(data.updatePayload);
         break;
       default:
         console.error("Action not define");

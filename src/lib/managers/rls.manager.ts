@@ -35,9 +35,8 @@ interface RlsManagerOptionsInterface {
   schemaName: string;
 }
 
-interface UpdatePolicyPayload {
+export interface UpdatePolicyPayload {
   name: string;
-  roles?: string[];
   using?: string;
   withCheck?: string;
 }
@@ -105,11 +104,7 @@ export default class RlsManager implements RlsManagerInterface {
 
   private generateUpdatePolicyQuery(payload: UpdatePolicyPayload): string {
     let query =
-      `ALTER POLICY ${payload.name} ON '${this.options.schemaName}'.'${this.options.tableName}';`;
-
-    if (payload.roles && payload.roles.length > 0) {
-      query += ` TO ${payload.roles.join(", ")}`;
-    }
+      `ALTER POLICY ${payload.name} ON ${this.options.schemaName}.${this.options.tableName}`;
 
     if (payload.using) {
       query += ` USING (${payload.using})`;
