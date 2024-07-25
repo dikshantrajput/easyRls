@@ -64,11 +64,11 @@
   }
 
   function editPolicy(policy: RlsPolicyInterface) {
-    editingPolicy = {
+    editingPolicy = structuredClone({
       ...policy,
       roles: [...policy.roles],
       withCheckEnabled: !!policy.withCheck,
-    };
+    });
     showEditPanel = true;
   }
 
@@ -107,8 +107,6 @@
   }
 
   function savePolicy() {
-    console.log({ editingPolicy });
-
     if (validatePolicy() && editingPolicy) {
       if (!editingPolicy.withCheckEnabled) {
         editingPolicy.withCheck = "";

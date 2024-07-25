@@ -17,6 +17,7 @@ interface RlsPolicyResponseInterface {
   roles: string;
   permissive: "PERMISSIVE" | "RESTRICTIVE";
   qual: string;
+  with_check: string;
 }
 
 interface RlsManagerInterface {
@@ -62,7 +63,7 @@ export default class RlsManager implements RlsManagerInterface {
   }
 
   private generateGetAllPoliciesQuery() {
-    return `SELECT policyname, cmd, roles, permissive, qual FROM pg_policies
+    return `SELECT policyname, cmd, roles, permissive, qual, with_check FROM pg_policies
       WHERE schemaname = '${this.options.schemaName}'
       AND tablename = '${this.options.tableName}';
     `;
@@ -166,7 +167,7 @@ export default class RlsManager implements RlsManagerInterface {
           : [],
         type: policy.permissive,
         using: policy.qual,
-        withCheck: policy.qual,
+        withCheck: policy.with_check,
       }));
     }
 
