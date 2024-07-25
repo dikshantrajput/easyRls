@@ -24,6 +24,7 @@ interface RlsManagerInterface {
   disable(): Promise<boolean>;
   getAllPolicies(): Promise<RlsPolicyInterface[]>;
   getSinglePolicy(name: string): Promise<RlsPolicyInterface | null>;
+  createPolicy(payload: RlsPolicyInterface): Promise<boolean>;
   updatePolicy(payload: UpdatePolicyPayload): Promise<boolean>;
   deletePolicy(name: string): Promise<boolean>;
 }
@@ -72,6 +73,33 @@ export default class RlsManager implements RlsManagerInterface {
       WHERE schemaname = '${this.options.schemaName}'
       AND tablename = '${this.options.tableName} where name = ${name}';
     `;
+  }
+
+  private generateCreatePolicyQuery(payload: RlsPolicyInterface): string {
+    let query =
+      `CREATE POLICY ${payload.name} ON ${this.options.schemaName}.${this.options.tableName}`;
+
+    if (payload.type) {
+      query += ` AS ${payload.type}`;
+    }
+
+    query += ` FOR ${payload.crud}`;
+
+    if (payload.roles && payload.roles.length) {
+      query += ` TO ${payload.roles.join(", ")}`;
+    }
+
+    if (payload.using) {
+      query += ` USING (${payload.using})`;
+    }
+
+    if (payload.withCheck) {
+      query += ` WITH CHECK (${payload.withCheck})`;
+    }
+
+    query += ";";
+
+    return query;
   }
 
   private generateUpdatePolicyQuery(payload: UpdatePolicyPayload): string {
@@ -169,6 +197,18 @@ export default class RlsManager implements RlsManagerInterface {
     }
 
     throw new Error(error);
+  }
+
+  async createPolicy(payload: RlsPolicyInterface): Promise<boolean> {
+    const { error } = await this.pgManager.query(
+      this.generateCreatePolicyQuery(payload),
+    );
+
+    if (error) {
+      throw new Error(error);
+    }
+
+    return true;
   }
 
   async updatePolicy(payload: UpdatePolicyPayload): Promise<boolean> {

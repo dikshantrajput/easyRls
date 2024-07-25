@@ -1,3 +1,4 @@
+import DatabaseManager from "$lib/managers/database.manager";
 import initializePostgresManager from "$lib/managers/postgres.manager";
 import RlsManager from "$lib/managers/rls.manager";
 import TableManager from "$lib/managers/table.manager";
@@ -11,6 +12,7 @@ export const load: ServerLoad = async ({ parent, params, depends }) => {
   const tableName = params.table_name;
   if (!dbUrl || !schemaName || !tableName) throw error(500, "Schema not valid");
   const postgresManager = await initializePostgresManager(dbUrl);
+  const dbManager = new DatabaseManager(postgresManager);
   const tableManager = new TableManager(postgresManager, {
     schemaName,
   });
@@ -20,5 +22,6 @@ export const load: ServerLoad = async ({ parent, params, depends }) => {
   });
   const policies = await rlsManager.getAllPolicies();
   const isRlsEnabledOnTable = await tableManager.isRlsEnabled(tableName);
-  return { policies, schemaName, tableName, isRlsEnabledOnTable };
+  const dbRoles = await dbManager.getAllUserCreatedRoles();
+  return { policies, schemaName, tableName, isRlsEnabledOnTable, dbRoles };
 };

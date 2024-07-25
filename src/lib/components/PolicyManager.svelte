@@ -5,22 +5,30 @@
   import AlertPopup from "./AlertPopup.svelte";
   import { createEventDispatcher } from "svelte";
   import Button from "./Button.svelte";
+  import type { DatabaseRoleInterface } from "$lib/managers/database.manager";
 
-  export let policies: RlsPolicyInterface[] = [],
-    tableName: string,
-    tableRlsEnabled: boolean,
-    schemaName: string;
+  interface EditingPolicyInterface extends RlsPolicyInterface {
+    withCheckEnabled: boolean;
+  }
+
+  export let policies: RlsPolicyInterface[] = [];
+  export let tableName: string;
+  export let tableRlsEnabled: boolean;
+  export let schemaName: string;
+  export let dbRoles: DatabaseRoleInterface[];
 
   let searchTerm = "";
-  let editingPolicy: RlsPolicyInterface | null = null;
+  let editingPolicy: EditingPolicyInterface | null = null;
   let showEditPanel = false;
   let alertPopupComponent: AlertPopup;
+  let errors: Record<string, string> = {};
 
   const dispatch = createEventDispatcher<{
     action: {
-      type: "delete" | "disable" | "enable";
+      type: "delete" | "disable" | "enable" | "create";
       data?: {
         id?: string;
+        createPayload?: RlsPolicyInterface;
       };
     };
   }>();
@@ -28,18 +36,21 @@
   $: filteredPolicies = policies.filter(
     (policy) =>
       policy.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      policy.roles.includes(searchTerm.toLowerCase()),
+      policy.roles.some((role) =>
+        role.toLowerCase().includes(searchTerm.toLowerCase()),
+      ),
   );
 
   function addNewPolicy() {
     editingPolicy = {
       id: "",
       name: "",
-      type: "permissive",
-      roles: "",
-      crud: [],
+      type: "PERMISSIVE",
+      roles: [],
+      crud: "SELECT",
       using: "",
       withCheck: "",
+      withCheckEnabled: false,
     };
     showEditPanel = true;
   }
@@ -53,19 +64,60 @@
   }
 
   function editPolicy(policy: RlsPolicyInterface) {
-    editingPolicy = { ...policy };
+    editingPolicy = {
+      ...policy,
+      roles: [...policy.roles],
+      withCheckEnabled: !!policy.withCheck,
+    };
     showEditPanel = true;
   }
 
-  function closeEditPanel() {
+  export function closeEditPanel() {
     showEditPanel = false;
     editingPolicy = null;
+    errors = {};
+  }
+
+  function validatePolicy(): boolean {
+    if (!editingPolicy) return false;
+    errors = {};
+
+    if (!editingPolicy.name.trim()) {
+      errors.name = "Name is required";
+    }
+
+    if (editingPolicy.roles.length === 0) {
+      errors.roles = "At least one role must be selected";
+    }
+
+    if (!editingPolicy.crud) {
+      errors.crud = "CRUD operation must be selected";
+    }
+
+    if (editingPolicy.crud === "INSERT") {
+      if (!editingPolicy?.withCheck?.trim()) {
+        errors.withCheck =
+          "WITH CHECK expression is required for INSERT operation";
+      }
+    } else if (!editingPolicy.using.trim()) {
+      errors.using = "USING expression is required";
+    }
+
+    return Object.keys(errors).length === 0;
   }
 
   function savePolicy() {
-    // Implement save logic here
-    console.log("Saving policy:", editingPolicy);
-    closeEditPanel();
+    console.log({ editingPolicy });
+
+    if (validatePolicy() && editingPolicy) {
+      if (!editingPolicy.withCheckEnabled) {
+        editingPolicy.withCheck = "";
+      }
+      dispatch("action", {
+        type: "create",
+        data: { createPayload: editingPolicy },
+      });
+    }
   }
 
   async function deletePolicy(id: string) {
@@ -75,11 +127,20 @@
     }
   }
 
-  function toggleAllCrud() {
+  function toggleRole(role: string) {
     if (editingPolicy) {
-      editingPolicy.crud = editingPolicy.crud.includes("ALL") ? [] : ["ALL"];
+      editingPolicy.roles = editingPolicy.roles.includes(role)
+        ? editingPolicy.roles.filter((r) => r !== role)
+        : [...editingPolicy.roles, role];
     }
   }
+
+  $: isInsertSelected = editingPolicy?.crud === "INSERT" ?? false;
+  $: shouldWithCheckBlockVisible = !["SELECT", "DELETE"].includes(
+    editingPolicy?.crud ?? "",
+  );
+  $: if (editingPolicy?.crud === "INSERT")
+    editingPolicy.withCheckEnabled = true;
 </script>
 
 <div class="p-6 bg-background">
@@ -93,12 +154,11 @@
     <div class="flex gap-2">
       <Button on:click={addNewPolicy}>Add New Policy</Button>
       {#if tableRlsEnabled}
-        <Button variant={"accent"} on:click={disableRlsPolicy}
-          >Disable Policy</Button
+        <Button variant="accent" on:click={disableRlsPolicy}>Disable RLS</Button
         >
       {:else}
-        <Button variant={"secondary"} on:click={enableRlsPolicy}
-          >Enable Policy</Button
+        <Button variant="secondary" on:click={enableRlsPolicy}
+          >Enable RLS</Button
         >
       {/if}
     </div>
@@ -113,7 +173,7 @@
 
   {#if filteredPolicies.length === 0}
     <p class="text-text-muted" transition:fade>
-      No tables found in this schema.
+      No policies found for this table.
     </p>
   {:else}
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -131,7 +191,7 @@
             Type: <span class="font-medium">{policy.type}</span>
           </p>
           <p class="text-text-muted mb-1">
-            Role: <span class="font-medium">{policy.roles}</span>
+            Roles: <span class="font-medium">{policy.roles.join(", ")}</span>
           </p>
           <p class="text-text-muted mb-4">
             CRUD: <span class="font-medium">{policy.crud}</span>
@@ -156,7 +216,7 @@
   {/if}
 </div>
 
-{#if showEditPanel}
+{#if showEditPanel && editingPolicy}
   <div
     class="fixed inset-y-0 right-0 w-full md:w-1/2 lg:w-1/3 bg-background-light shadow-lg p-6 overflow-y-auto"
     transition:fly={{ x: 300, duration: 300, easing: quintOut }}
@@ -164,110 +224,161 @@
     <h2 class="text-2xl font-bold mb-6">
       {editingPolicy.id ? "Edit" : "Add"} Policy
     </h2>
-    <form on:submit|preventDefault={savePolicy}>
-      <div class="mb-4">
-        <label for="name" class="block text-text-muted mb-2">Name</label>
+    <form on:submit|preventDefault={savePolicy} class="space-y-4">
+      <div>
+        <label for="name" class="block text-text-muted mb-2">Name*</label>
         <input
           id="name"
           type="text"
           bind:value={editingPolicy.name}
           class="w-full p-2 border border-background-dark rounded-md bg-background text-text"
+          required
         />
-      </div>
-
-      <div class="mb-4">
-        <label class="block text-text-muted mb-2">Type</label>
-        <div class="flex">
-          <label class="mr-4">
-            <input
-              type="radio"
-              bind:group={editingPolicy.type}
-              value="permissive"
-            /> Permissive
-          </label>
-          <label>
-            <input
-              type="radio"
-              bind:group={editingPolicy.type}
-              value="restrictive"
-            /> Restrictive
-          </label>
-        </div>
-      </div>
-
-      <div class="mb-4">
-        <label for="role" class="block text-text-muted mb-2">Role</label>
-        <input
-          id="role"
-          type="text"
-          bind:value={editingPolicy.role}
-          class="w-full p-2 border border-background-dark rounded-md bg-background text-text"
-        />
-      </div>
-
-      <div class="mb-4">
-        <label class="block text-text-muted mb-2">CRUD Operations</label>
-        <div class="flex flex-wrap items-center">
-          <label class="flex items-center mr-4 mb-2">
-            <input
-              type="checkbox"
-              on:change={toggleAllCrud}
-              checked={editingPolicy.crud.includes("ALL")}
-              class="mr-2"
-            /> ALL
-          </label>
-          {#each ["SELECT", "INSERT", "UPDATE", "DELETE"] as operation}
-            <label class="flex items-center mr-4 mb-2">
-              <input
-                type="checkbox"
-                bind:group={editingPolicy.crud}
-                value={operation}
-                disabled={editingPolicy.crud.includes("ALL")}
-                class="mr-2"
-              />
-              {operation}
-            </label>
-          {/each}
-        </div>
-      </div>
-
-      <div class="mb-4">
-        <label for="using" class="block text-text-muted mb-2"
-          >USING Expression</label
-        >
-        <textarea
-          id="using"
-          bind:value={editingPolicy.using}
-          rows="3"
-          class="w-full p-2 border border-background-dark rounded-md bg-background text-text"
-          placeholder="Enter USING expression here"
-        ></textarea>
-      </div>
-
-      <div class="mb-6">
-        <label class="flex items-center">
-          <input
-            type="checkbox"
-            class="mr-2"
-            bind:checked={editingPolicy.withCheck}
-          />
-          <span class="text-text-muted">Add WITH CHECK expression</span>
-        </label>
-        {#if editingPolicy.withCheck !== ""}
-          <textarea
-            bind:value={editingPolicy.withCheck}
-            rows="3"
-            class="w-full p-2 mt-2 border border-background-dark rounded-md bg-background text-text"
-            placeholder="Enter WITH CHECK expression here"
-          ></textarea>
+        {#if errors.name}
+          <p class="text-error text-sm mt-1">{errors.name}</p>
         {/if}
       </div>
 
-      <div class="flex justify-end">
+      <div>
+        <label for="type" class="block text-text-muted mb-2">Type*</label>
+        <div class="flex space-x-4">
+          <label class="inline-flex items-center">
+            <input
+              id="type"
+              type="radio"
+              bind:group={editingPolicy.type}
+              value="PERMISSIVE"
+              class="form-radio text-primary"
+              required
+            />
+            <span class="ml-2">Permissive</span>
+          </label>
+          <label class="inline-flex items-center">
+            <input
+              type="radio"
+              bind:group={editingPolicy.type}
+              value="RESTRICTIVE"
+              class="form-radio text-primary"
+              required
+            />
+            <span class="ml-2">Restrictive</span>
+          </label>
+        </div>
+      </div>
+
+      <div>
+        <label for="roles" class="block text-text-muted mb-2">Roles*</label>
+        <div
+          class="max-h-40 overflow-y-auto border border-background-dark rounded-md p-2"
+        >
+          {#each dbRoles as role}
+            <label class="inline-flex items-center mb-2 mr-4">
+              <input
+                id="roles"
+                type="checkbox"
+                checked={editingPolicy?.roles?.includes(role.name)}
+                on:change={() => toggleRole(role.name)}
+                class="form-checkbox text-primary"
+              />
+              <span class="ml-2">{role.name}</span>
+            </label>
+          {/each}
+        </div>
+        {#if errors.roles}
+          <p class="text-error text-sm mt-1">{errors.roles}</p>
+        {/if}
+      </div>
+
+      <div>
+        <label for="crud" class="block text-text-muted mb-2"
+          >CRUD Operations*</label
+        >
+        <div class="flex flex-wrap items-center space-x-4">
+          {#each ["ALL", "SELECT", "INSERT", "UPDATE", "DELETE"] as operation}
+            <label class="inline-flex items-center">
+              <input
+                id="crud"
+                bind:group={editingPolicy.crud}
+                value={operation}
+                type="radio"
+                class="form-checkbox text-primary"
+              />
+              <span class="ml-2">{operation}</span>
+            </label>
+          {/each}
+        </div>
+        {#if errors.crud}
+          <p class="text-error text-sm mt-1">{errors.crud}</p>
+        {/if}
+      </div>
+
+      {#if isInsertSelected}
+        <div>
+          <label for="withCheck" class="block text-text-muted mb-2"
+            >WITH CHECK Expression*</label
+          >
+          <textarea
+            id="withCheck"
+            bind:value={editingPolicy.withCheck}
+            rows="3"
+            class="w-full p-2 border border-background-dark rounded-md bg-background text-text"
+            placeholder="Enter WITH CHECK expression here"
+            required
+          ></textarea>
+          {#if errors.withCheck}
+            <p class="text-error text-sm mt-1">{errors.withCheck}</p>
+          {/if}
+        </div>
+      {:else}
+        <div>
+          <label for="using" class="block text-text-muted mb-2"
+            >USING Expression*</label
+          >
+          <textarea
+            id="using"
+            bind:value={editingPolicy.using}
+            rows="3"
+            class="w-full p-2 border border-background-dark rounded-md bg-background text-text"
+            placeholder="Enter USING expression here"
+            required
+          ></textarea>
+          {#if errors.using}
+            <p class="text-error text-sm mt-1">{errors.using}</p>
+          {/if}
+        </div>
+
+        {#if shouldWithCheckBlockVisible}
+          <div>
+            <label class="inline-flex items-center">
+              <input
+                type="checkbox"
+                class="form-checkbox text-primary"
+                bind:checked={editingPolicy.withCheckEnabled}
+              />
+              <span class="ml-2 text-text-muted">Add WITH CHECK expression</span
+              >
+            </label>
+            {#if editingPolicy.withCheckEnabled}
+              <textarea
+                bind:value={editingPolicy.withCheck}
+                rows="3"
+                class="w-full p-2 mt-2 border border-background-dark rounded-md bg-background text-text"
+                placeholder="Enter WITH CHECK expression here"
+                required={editingPolicy.withCheckEnabled}
+              ></textarea>
+              {#if errors.withCheck}
+                <p class="text-error text-sm mt-1">{errors.withCheck}</p>
+              {/if}
+            {/if}
+          </div>
+        {/if}
+      {/if}
+
+      <div class="flex justify-end space-x-4">
         <button
           type="button"
           on:click={closeEditPanel}
-          class="px-4 py-2 bg-background-dark text-text rounded-md hover:bg-background transition-colors mr-4"
+          class="px-4 py-2 bg-background-dark text-text rounded-md hover:bg-background transition-colors"
         >
           Cancel
         </button>

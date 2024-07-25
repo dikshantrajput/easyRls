@@ -3,10 +3,14 @@
   import { toast } from "svelte-sonner";
   import type { PageData } from "../$types";
   import { invalidate } from "$app/navigation";
+  import type { RlsPolicyInterface } from "$lib/managers/rls.manager";
 
   export let data: PageData;
 
-  $: ({ policies, tableName, schemaName, dbUrl, isRlsEnabledOnTable } = data);
+  $: ({ policies, tableName, schemaName, dbUrl, isRlsEnabledOnTable, dbRoles } =
+    data);
+
+  let policyManagerInstance: PolicyManager;
 
   const enableRlsOnTable = async (tableName: string) => {
     toast.loading(`Enabling RLS for table ${tableName}`);
@@ -59,6 +63,30 @@
     }
   };
 
+  const createRlsPolicy = async (payload: RlsPolicyInterface) => {
+    toast.loading(`Creating RLS policy for table: ${tableName}`);
+    const res = await fetch("/api/createTableRls", {
+      method: "POST",
+      body: JSON.stringify({
+        schemaName,
+        tableName,
+        dbUrl,
+        payload,
+      }),
+    });
+    const data = await res.json();
+
+    if (res.ok && data.result) {
+      toast.success(`${tableName} rls created`);
+      if (policyManagerInstance) policyManagerInstance.closeEditPanel();
+      invalidate("policies:fetch");
+    } else {
+      toast.error(
+        String(data.message ?? `Error creating rls for table: ${tableName}`),
+      );
+    }
+  };
+
   const disableRlsOnTable = async (policyName: string) => {
     toast.loading(`Disabling RLS policy for table: ${tableName}`);
     const res = await fetch("/api/disableTableRls", {
@@ -83,9 +111,10 @@
 
   const handleActionClick = (
     event: CustomEvent<{
-      type: "delete" | "disable" | "enable";
+      type: "delete" | "disable" | "enable" | "create";
       data?: {
         id?: string;
+        createPayload?: RlsPolicyInterface;
       };
     }>,
   ) => {
@@ -102,6 +131,10 @@
         if (!data?.id) throw Error("Invalid action data");
         handleDeleteRlsPolicyEvent(data.id);
         break;
+      case "create":
+        if (!data?.createPayload) throw Error("Invalid action data");
+        createRlsPolicy(data.createPayload);
+        break;
       default:
         console.error("Action not define");
     }
@@ -110,10 +143,12 @@
 
 <div class="max-w-6xl mx-auto p-6">
   <PolicyManager
+    bind:this={policyManagerInstance}
     tableRlsEnabled={isRlsEnabledOnTable}
     {policies}
     {schemaName}
     {tableName}
+    {dbRoles}
     on:action={handleActionClick}
   />
 </div>
