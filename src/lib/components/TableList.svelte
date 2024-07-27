@@ -51,7 +51,7 @@
           }}
         >
           <div class="p-4">
-            <h3 class="text-lg font-medium text-text mb-2">{table.name}</h3>
+            <h3 class="text-lg font-medium text-text mb-2 truncate" title={table.name}>{table.name}</h3>
             <div class="flex items-center justify-between mb-3">
               <span
                 class="text-sm font-semibold {table.rlsEnabled
