@@ -3,6 +3,9 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
+![image](https://github.com/user-attachments/assets/d035105a-5531-400b-aca6-b288fffd0f63)
+
+
 EasyRls is an open-source project designed to simplify the management of Row
 Level Security (RLS) policies in PostgreSQL databases. With EasyRls, you can
 easily connect to your PostgreSQL instance, manage schemas and tables, and
