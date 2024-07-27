@@ -76,6 +76,17 @@
     showEditPanel = true;
   }
 
+  function copyPolicy(policy: RlsPolicyInterface) {
+    editingPolicy = structuredClone({
+      ...policy,
+      name: `${policy.name} copy`,
+      roles: [...policy.roles],
+      withCheckEnabled: !!policy.withCheck,
+      action: "CREATE",
+    });
+    showEditPanel = true;
+  }
+
   export function closeEditPanel() {
     showEditPanel = false;
     editingPolicy = null;
@@ -88,10 +99,6 @@
 
     if (!editingPolicy.name.trim()) {
       errors.name = "Name is required";
-    }
-
-    if (editingPolicy.roles.length === 0) {
-      errors.roles = "At least one role must be selected";
     }
 
     if (!editingPolicy.crud) {
@@ -209,7 +216,12 @@
             delay: Math.min(i * 10, 100),
           }}
         >
-          <h2 class="text-xl font-semibold text-text mb-2">{policy.name}</h2>
+          <h2
+            class="text-xl font-semibold text-text mb-2 truncate"
+            title={policy.name}
+          >
+            {policy.name}
+          </h2>
           <p class="text-text-muted mb-1">
             Type: <span class="font-medium">{policy.type}</span>
           </p>
@@ -221,8 +233,14 @@
           </p>
           <div class="flex justify-end">
             <button
+              on:click={() => copyPolicy(policy)}
+              class="text-primary hover:text-primary-dark transition-colors mr-4"
+            >
+              Copy
+            </button>
+            <button
               on:click={() => editPolicy(policy)}
-              class="text-secondary hover:text-secondary-dark transition-colors mr-4"
+              class="text-text hover:text-text-dark transition-colors mr-4"
             >
               Edit
             </button>
@@ -293,7 +311,10 @@
       </div>
 
       <div>
-        <label for="roles" class="block text-text-muted mb-2">Roles*</label>
+        <label for="roles" class="block text-text-muted mb-2">
+          Roles
+          <span class="text-sm">(Defaults to `public` i.e. all roles)</span>
+        </label>
         <div
           class="max-h-40 overflow-y-auto border border-background-dark rounded-md p-2"
         >

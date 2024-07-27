@@ -20,7 +20,10 @@
 </script>
 
 <div class="min-h-screen bg-background text-text">
-  <nav class="p-4 bg-background-light">
+  <nav class="p-4 bg-background-light flex justify-between items-center px-5">
+    <a href="/" class="text-secondary text-2xl">
+      EasyRls
+    </a>
     <ThemeToggler />
   </nav>
 

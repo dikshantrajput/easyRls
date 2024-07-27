@@ -77,7 +77,7 @@ export default class RlsManager implements RlsManagerInterface {
 
   private generateCreatePolicyQuery(payload: RlsPolicyInterface): string {
     let query =
-      `CREATE POLICY ${payload.name} ON ${this.options.schemaName}.${this.options.tableName}`;
+      `CREATE POLICY "${payload.name}" ON ${this.options.schemaName}.${this.options.tableName}`;
 
     if (payload.type) {
       query += ` AS ${payload.type}`;
@@ -104,7 +104,7 @@ export default class RlsManager implements RlsManagerInterface {
 
   private generateUpdatePolicyQuery(payload: UpdatePolicyPayload): string {
     let query =
-      `ALTER POLICY ${payload.name} ON ${this.options.schemaName}.${this.options.tableName}`;
+      `ALTER POLICY "${payload.name}" ON ${this.options.schemaName}.${this.options.tableName}`;
 
     if (payload.using) {
       query += ` USING (${payload.using})`;
@@ -120,7 +120,7 @@ export default class RlsManager implements RlsManagerInterface {
   }
 
   private generateDeleteRlsPolicyQuery(name: string) {
-    return `DROP POLICY ${name} ON ${this.options.schemaName}.${this.options.tableName};`;
+    return `DROP POLICY "${name}" ON ${this.options.schemaName}.${this.options.tableName};`;
   }
 
   async enable(): Promise<boolean> {
