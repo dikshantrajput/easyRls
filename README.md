@@ -1,38 +1,75 @@
-# create-svelte
+# EasyRls
 
-Everything you need to build a Svelte project, powered by [`create-svelte`](https://github.com/sveltejs/kit/tree/main/packages/create-svelte).
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-## Creating a project
+EasyRls is an open-source project designed to simplify the management of Row
+Level Security (RLS) policies in PostgreSQL databases. With EasyRls, you can
+easily connect to your PostgreSQL instance, manage schemas and tables, and
+create, edit, or delete RLS policies—all through an intuitive interface that
+supports both light and dark themes.
 
-If you're seeing this, you've probably already done this step. Congrats!
+## Features
 
-```bash
-# create a new project in the current directory
-npm create svelte@latest
+- **Connect to PostgreSQL Instances**: Easily connect to any PostgreSQL instance
+  using a connection string.
+- **List Schemas**: View all schemas available in your connected PostgreSQL
+  instance.
+- **List Tables in a Schema**: Navigate through schemas to list all tables
+  within a selected schema.
+- **RLS Policy Status**: Check the RLS policy status on any table, enabling you
+  to quickly identify which tables have RLS policies applied.
+- **Enable/Disable RLS Policies**: Toggle RLS policies on and off as needed for
+  any table.
+- **Manage RLS Policies**:
+  - **List All RLS Policies**: View a list of all RLS policies applied to a
+    specific table.
+  - **Create New RLS Policy**: Easily create new RLS policies to manage data
+    access at a granular level.
+  - **Edit Existing Policy**: Modify existing RLS policies to adapt to changing
+    requirements.
+  - **Delete Policy**: Remove unnecessary RLS policies with ease.
+  - **Copy Policy**: Duplicate existing RLS policies to streamline the creation
+    of similar policies.
+- **Search Functionality**: Search through schemas, tables, and policies to
+  quickly find what you need.
+- **Light and Dark Theme**: Choose between light and dark themes for a
+  comfortable user experience.
 
-# create a new project in my-app
-npm create svelte@latest my-app
-```
+## Installation
 
-## Developing
+To get started with EasyRls, follow these steps:
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+1. **Clone the repository:**
+   ```bash
+   git clone https://github.com/yourusername/EasyRls.git
+   cd easyRls
+   ```
 
-```bash
-npm run dev
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
+3. **Start the application:**
+   ```bash
+   npm start
+   ```
 
-## Building
+## Usage
 
-To create a production version of your app:
+1. **Connect to your PostgreSQL instance** using the provided connection string
+   interface.
+2. **Explore schemas and tables** to manage RLS policies.
+3. **Create, edit, or delete RLS policies** as per your requirements.
 
-```bash
-npm run build
-```
+## Contributing
 
-You can preview the production build with `npm run preview`.
+Contributions from the community are welcomed! If you'd like to contribute,
+please read our [Contributing Guide](CONTRIBUTING.md) and
+[Code of Conduct](CODE_OF_CONDUCT.md).
 
-> To deploy your app, you may need to install an [adapter](https://kit.svelte.dev/docs/adapters) for your target environment.
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE.txt)
+file for details.
