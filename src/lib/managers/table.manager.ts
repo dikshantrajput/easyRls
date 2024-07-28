@@ -74,7 +74,7 @@ FROM
             tablename
     ) policy_count ON t.relname = policy_count.tablename
 WHERE
-    n.nspname = 'onbo' 
+    n.nspname = '${this.options.schemaName}' 
     AND t.relkind = 'r' 
 ORDER BY
     t.relname;

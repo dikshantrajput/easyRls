@@ -6,7 +6,7 @@ export interface DatabaseSchemaInterface {
 }
 
 interface DatabaseSchemaResponseInterface {
-  table_schema: string;
+  schema_name: string;
   table_count: number;
 }
 
@@ -32,10 +32,20 @@ export default class SchemaManager implements SchemaManagerInterface {
 
   private generateGetAllSchemasQuery() {
     return `
-      SELECT table_schema, COUNT(*) as table_count
-      FROM information_schema.tables 
-      WHERE table_schema NOT IN ('pg_catalog', 'information_schema')
-      GROUP BY table_schema;;
+     SELECT
+          n.nspname AS schema_name,
+          COUNT(t.relname) AS table_count
+      FROM
+          pg_namespace n
+      LEFT JOIN
+          pg_class t ON t.relnamespace = n.oid AND t.relkind = 'r'
+      WHERE
+          n.nspname NOT LIKE 'pg_%'
+          AND n.nspname != 'information_schema'
+      GROUP BY
+          n.nspname
+      ORDER BY
+          n.nspname;
     `;
   }
 
@@ -59,7 +69,7 @@ export default class SchemaManager implements SchemaManagerInterface {
     );
     if (!error && data) {
       return data?.map((schema) => ({
-        name: schema.table_schema,
+        name: schema.schema_name,
         tableCount: schema.table_count,
       }));
     }
