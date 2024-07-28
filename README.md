@@ -3,9 +3,6 @@
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Contributions Welcome](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
-![image](https://github.com/user-attachments/assets/d035105a-5531-400b-aca6-b288fffd0f63)
-
-
 EasyRls is an open-source project designed to simplify the management of Row
 Level Security (RLS) policies in PostgreSQL databases. With EasyRls, you can
 easily connect to your PostgreSQL instance, manage schemas and tables, and
@@ -18,8 +15,12 @@ supports both light and dark themes.
   using a connection string.
 - **List Schemas**: View all schemas available in your connected PostgreSQL
   instance.
+  
+  ![schemas](https://github.com/user-attachments/assets/d12e1da4-b105-424a-bcf6-fa0f0237504d)
 - **List Tables in a Schema**: Navigate through schemas to list all tables
   within a selected schema.
+  
+  ![tables](https://github.com/user-attachments/assets/b594b978-0e8a-48af-a198-49634b680a84)
 - **RLS Policy Status**: Check the RLS policy status on any table, enabling you
   to quickly identify which tables have RLS policies applied.
 - **Enable/Disable RLS Policies**: Toggle RLS policies on and off as needed for
@@ -34,10 +35,14 @@ supports both light and dark themes.
   - **Delete Policy**: Remove unnecessary RLS policies with ease.
   - **Copy Policy**: Duplicate existing RLS policies to streamline the creation
     of similar policies.
+    
+    ![image](https://github.com/user-attachments/assets/d035105a-5531-400b-aca6-b288fffd0f63)
 - **Search Functionality**: Search through schemas, tables, and policies to
   quickly find what you need.
 - **Light and Dark Theme**: Choose between light and dark themes for a
   comfortable user experience.
+
+
 
 ## Installation
 
