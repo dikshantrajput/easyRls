@@ -71,6 +71,9 @@ To get started with EasyRls, follow these steps:
 2. **Explore schemas and tables** to manage RLS policies.
 3. **Create, edit, or delete RLS policies** as per your requirements.
 
+### Note:
+If it says "SAML ERROR", double check your password for `@`,`#` and other special characters. They are not properly encoded and if issue still persists, try to use `psql` instead of `postgres` in prefix of connection string
+
 ## Contributing
 
 Contributions from the community are welcomed! If you'd like to contribute,
