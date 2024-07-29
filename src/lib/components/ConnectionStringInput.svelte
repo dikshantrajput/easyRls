@@ -19,7 +19,7 @@
 
     // This is a basic regex for PostgreSQL connection string validation
     // You may want to enhance this based on your specific requirements
-    const regex = /^postgres(ql)?:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)$/;
+    const regex = /^postgres|psql(ql)?:\/\/([^:]+):([^@]+)@([^:]+):(\d+)\/(.+)$/;
     isValid = regex.test(connectionString);
 
     isLoading = false;
@@ -33,7 +33,7 @@
   });
 </script>
 
-<div class="max-w-xl mx-auto p-6">
+<div class="mx-auto py-6">
   <label
     for="connection-string"
     class="block text-sm font-medium text-text mb-2"
