@@ -1,5 +1,8 @@
 <script lang="ts">
+    import { goto } from "$app/navigation";
+    import { page } from "$app/stores";
   import type { DatabaseSchemaInterface } from "$lib/managers/schema.manager";
+    import Icon from "@iconify/svelte";
   import { createEventDispatcher } from "svelte";
   import { fade, fly } from "svelte/transition";
 
@@ -19,12 +22,21 @@
   const dispatchViewTableClickEvent = (name: string) => {
     dispatch("viewTable", name);
   };
+
+  const navigateBack = () => {
+    goto(`/`);
+  };
 </script>
 
 <div class="max-w-4xl mx-auto p-6 bg-background rounded-lg shadow-md">
-  <h2 class="text-2xl font-semibold text-text mb-6">
-    Schemas in <span class="text-primary"><i>{dbName}</i></span>
-  </h2>
+  <div class="flex items-center mb-6">
+    <button on:click={navigateBack}>
+      <Icon icon="ep:back" height="25" width="25" />
+    </button>
+    <h2 class="text-2xl font-semibold text-text ml-3">
+      Schemas in <span class="text-primary"><i>{dbName}</i></span>
+    </h2>
+  </div>
 
   <input
     type="text"

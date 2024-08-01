@@ -3,6 +3,10 @@
   import { createEventDispatcher } from "svelte";
   import { fade, fly } from "svelte/transition";
   import Button from "./Button.svelte";
+    import Icon from "@iconify/svelte";
+    import { referrerStore } from "$lib/stores/referrer";
+    import { goto } from "$app/navigation";
+    import { page } from "$app/stores";
 
   export let schemaName: string,
     tables: DatabaseTableInterface[] = [];
@@ -21,12 +25,21 @@
   const dispatchManageRlsClickEvent = (tableName: string) => {
     dispatch("manage", { tableName });
   };
+
+  const navigateBack = () => {
+    goto(`/schemas?${$page.url.searchParams.toString()}`);
+  };
 </script>
 
 <div class="max-w-6xl mx-auto p-6 bg-background rounded-lg shadow-md">
-  <h2 class="text-2xl font-semibold text-text mb-6">
-    Tables in <span class="text-primary"><i>{schemaName}</i></span> Schema
-  </h2>
+  <div class="flex items-center mb-6">
+    <button on:click={navigateBack}>
+      <Icon icon="ep:back" height="25" width="25" />
+    </button>
+    <h2 class="text-2xl font-semibold text-text ml-3">
+      Tables in <span class="text-primary"><i>{schemaName}</i></span> Schema
+    </h2>
+  </div>
 
   <input
     type="text"

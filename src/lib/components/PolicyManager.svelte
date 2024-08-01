@@ -6,6 +6,10 @@
   import { createEventDispatcher } from "svelte";
   import Button from "./Button.svelte";
   import type { DatabaseRoleInterface } from "$lib/managers/database.manager";
+  import Icon from "@iconify/svelte";
+  import { referrerStore } from "$lib/stores/referrer";
+  import { goto } from "$app/navigation";
+    import { page } from "$app/stores";
 
   interface EditingPolicyInterface extends RlsPolicyInterface {
     withCheckEnabled: boolean;
@@ -171,15 +175,24 @@
       isInsertSelected = false;
     }
   }
+
+  const navigateBack = () => {
+    goto(`/schemas/base/tables?${$page.url.searchParams.toString()}`);
+  };
 </script>
 
 <div class="p-6 bg-background">
   <div class="flex justify-between items-center mb-6">
-    <h2 class="text-2xl font-semibold text-text mb-6">
-      RLS Policies in <span class="text-primary"
-        ><i>{schemaName}.{tableName}</i></span
-      >
-    </h2>
+    <div class="flex items-center">
+      <button on:click={navigateBack}>
+        <Icon icon="ep:back" height="25" width="25" />
+      </button>
+      <h2 class="text-2xl font-semibold text-text ml-3">
+        RLS Policies in <span class="text-primary"
+          ><i>{schemaName}.{tableName}</i></span
+        >
+      </h2>
+    </div>
 
     <div class="flex gap-2">
       <Button on:click={addNewPolicy}>Add New Policy</Button>

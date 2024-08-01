@@ -6,6 +6,14 @@
   import ThemeToggler from "$lib/components/ThemeToggler.svelte";
   import { THEME_LOCALSTORAGE_KEY } from "$lib/constants";
   import { Toaster } from "svelte-sonner";
+  import { beforeNavigate } from "$app/navigation";
+  import { referrerStore } from "$lib/stores/referrer";
+
+  beforeNavigate((navigation) => {
+    if (navigation.from?.url) {
+      referrerStore.set(navigation.from.url.href);
+    }
+  });
 
   onMount(() => {
     const savedTheme = localStorage.getItem(
@@ -21,9 +29,7 @@
 
 <div class="min-h-screen bg-background text-text">
   <nav class="p-4 bg-background-light flex justify-between items-center px-5">
-    <a href="/" class="text-secondary text-2xl">
-      EasyRls
-    </a>
+    <a href="/" class="text-secondary text-2xl"> EasyRls </a>
     <ThemeToggler />
   </nav>
 
