@@ -9,18 +9,16 @@ easily connect to your PostgreSQL instance, manage schemas and tables, and
 create, edit, or delete RLS policies—all through an intuitive interface that
 supports both light and dark themes.
 
+https://github.com/user-attachments/assets/3a86e97c-2b3d-4119-b26f-be2773613e7d
+
 ## Features
 
 - **Connect to PostgreSQL Instances**: Easily connect to any PostgreSQL instance
   using a connection string.
 - **List Schemas**: View all schemas available in your connected PostgreSQL
   instance.
-  
-  ![schemas](https://github.com/user-attachments/assets/d12e1da4-b105-424a-bcf6-fa0f0237504d)
 - **List Tables in a Schema**: Navigate through schemas to list all tables
   within a selected schema.
-  
-  ![tables](https://github.com/user-attachments/assets/b594b978-0e8a-48af-a198-49634b680a84)
 - **RLS Policy Status**: Check the RLS policy status on any table, enabling you
   to quickly identify which tables have RLS policies applied.
 - **Enable/Disable RLS Policies**: Toggle RLS policies on and off as needed for
@@ -35,8 +33,6 @@ supports both light and dark themes.
   - **Delete Policy**: Remove unnecessary RLS policies with ease.
   - **Copy Policy**: Duplicate existing RLS policies to streamline the creation
     of similar policies.
-    
-    ![image](https://github.com/user-attachments/assets/d035105a-5531-400b-aca6-b288fffd0f63)
 - **Search Functionality**: Search through schemas, tables, and policies to
   quickly find what you need.
 - **Light and Dark Theme**: Choose between light and dark themes for a
