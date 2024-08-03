@@ -38,7 +38,9 @@ https://github.com/user-attachments/assets/3a86e97c-2b3d-4119-b26f-be2773613e7d
 - **Light and Dark Theme**: Choose between light and dark themes for a
   comfortable user experience.
 
+### Privacy Note
 
+This tool is used solely for displaying data from your database. We do not store or retain any data related to your database or its contents on our end.
 
 ## Installation
 
