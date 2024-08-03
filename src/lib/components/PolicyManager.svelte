@@ -181,28 +181,25 @@
   };
 </script>
 
-<div class="p-6 bg-background">
-  <div class="flex justify-between items-center mb-6">
+<div class="p-4 sm:p-6 bg-background">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 space-y-4 sm:space-y-0">
     <div class="flex items-center">
       <button on:click={navigateBack}>
         <Icon icon="ep:back" height="25" width="25" />
       </button>
-      <h2 class="text-2xl font-semibold text-text ml-3">
+      <h2 class="text-xl sm:text-2xl font-semibold text-text ml-3">
         RLS Policies in <span class="text-primary"
           ><i>{schemaName}.{tableName}</i></span
         >
       </h2>
     </div>
 
-    <div class="flex gap-2">
+    <div class="flex flex-wrap gap-2">
       <Button on:click={addNewPolicy}>Add New Policy</Button>
       {#if tableRlsEnabled}
-        <Button variant="accent" on:click={disableRlsPolicy}>Disable RLS</Button
-        >
+        <Button variant="accent" on:click={disableRlsPolicy}>Disable RLS</Button>
       {:else}
-        <Button variant="secondary" on:click={enableRlsPolicy}
-          >Enable RLS</Button
-        >
+        <Button variant="secondary" on:click={enableRlsPolicy}>Enable RLS</Button>
       {/if}
     </div>
   </div>
@@ -219,10 +216,10 @@
       No policies found for this table.
     </p>
   {:else}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
       {#each filteredPolicies as policy, i (policy.id)}
         <div
-          class="bg-background-light rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+          class="bg-background-light rounded-lg shadow-md p-4 sm:p-6 hover:shadow-lg transition-shadow"
           transition:fly={{
             y: 50,
             duration: 300,
@@ -230,36 +227,36 @@
           }}
         >
           <h2
-            class="text-xl font-semibold text-text mb-2 truncate"
+            class="text-lg sm:text-xl font-semibold text-text mb-2 truncate"
             title={policy.name}
           >
             {policy.name}
           </h2>
-          <p class="text-text-muted mb-1">
+          <p class="text-sm sm:text-base text-text-muted mb-1">
             Type: <span class="font-medium">{policy.type}</span>
           </p>
-          <p class="text-text-muted mb-1">
+          <p class="text-sm sm:text-base text-text-muted mb-1">
             Roles: <span class="font-medium">{policy.roles.join(", ")}</span>
           </p>
-          <p class="text-text-muted mb-4">
+          <p class="text-sm sm:text-base text-text-muted mb-4">
             CRUD: <span class="font-medium">{policy.crud}</span>
           </p>
           <div class="flex justify-end">
             <button
               on:click={() => copyPolicy(policy)}
-              class="text-primary hover:text-primary-dark transition-colors mr-4"
+              class="text-sm sm:text-base text-primary hover:text-primary-dark transition-colors mr-4"
             >
               Copy
             </button>
             <button
               on:click={() => editPolicy(policy)}
-              class="text-text hover:text-text-dark transition-colors mr-4"
+              class="text-sm sm:text-base text-text hover:text-text-dark transition-colors mr-4"
             >
               Edit
             </button>
             <button
               on:click={() => deletePolicy(policy.id)}
-              class="text-error hover:text-red-700 transition-colors"
+              class="text-sm sm:text-base text-error hover:text-red-700 transition-colors"
             >
               Delete
             </button>
@@ -269,7 +266,6 @@
     </div>
   {/if}
 </div>
-
 {#if showEditPanel && editingPolicy}
   <div
     class="fixed inset-y-0 right-0 w-full md:w-1/2 lg:w-1/3 bg-background-light shadow-lg p-6 overflow-y-auto"
