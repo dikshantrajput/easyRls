@@ -9,6 +9,7 @@
   let isLoading = false;
 
   const handleDatabaseConnection: SubmitFunction = () => {
+    toast.loading("Establishing connection...");
     return async ({ result }) => {
       if (result.type === "success") {
         toast.success("Connection successful");

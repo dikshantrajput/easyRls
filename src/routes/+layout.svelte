@@ -5,9 +5,12 @@
   import { ThemesEnum } from "$lib/types/core";
   import ThemeToggler from "$lib/components/ThemeToggler.svelte";
   import { THEME_LOCALSTORAGE_KEY } from "$lib/constants";
-  import { Toaster } from "svelte-sonner";
+  import { toast, Toaster } from "svelte-sonner";
   import { beforeNavigate } from "$app/navigation";
   import { referrerStore } from "$lib/stores/referrer";
+  import Icon from "@iconify/svelte";
+  import { navigating } from "$app/stores";
+  import Loader from "$lib/components/Loader.svelte";
 
   beforeNavigate((navigation) => {
     if (navigation.from?.url) {
@@ -15,6 +18,7 @@
     }
   });
 
+  $: isNavigating = !!$navigating;
   onMount(() => {
     const savedTheme = localStorage.getItem(
       THEME_LOCALSTORAGE_KEY,
@@ -29,8 +33,25 @@
 
 <div class="min-h-screen bg-background text-text">
   <nav class="p-4 bg-background-light flex justify-between items-center px-5">
-    <a href="/" class="text-secondary text-2xl"> EasyRls </a>
-    <ThemeToggler />
+    <div class="flex gap-3 items-center">
+      <a href="/" class="dark:text-secondary text-primary text-2xl">
+        EasyRls
+      </a>
+      {#if isNavigating}
+        <Loader color="secondary" />
+      {/if}
+    </div>
+    <nav class="flex items-center gap-3">
+      <a
+        href="https://github.com/dikshantrajput/easyRls"
+        target="_blank"
+        rel="noopener noreferrer"
+        class="text-3xl"
+      >
+        <Icon icon="mdi:github" />
+      </a>
+      <ThemeToggler />
+    </nav>
   </nav>
 
   <main>
