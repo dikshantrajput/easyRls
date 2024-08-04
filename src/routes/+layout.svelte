@@ -43,6 +43,17 @@
     </div>
     <nav class="flex items-center gap-3">
       <a
+        href="https://www.producthunt.com/posts/easyrls?embed=true&utm_source=badge-featured&utm_medium=badge&utm_souce=badge-easyrls"
+        target="_blank"
+        ><img
+          src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=476455&theme=light"
+          alt="EasyRLS - Simplify&#0032;PostgreSQL&#0032;Row&#0032;Level&#0032;Security | Product Hunt"
+          style="width: 250px; height: 54px;"
+          width="250"
+          height="54"
+        /></a
+      >
+      <a
         href="https://github.com/dikshantrajput/easyRls"
         target="_blank"
         rel="noopener noreferrer"

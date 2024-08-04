@@ -24,6 +24,12 @@
   };
 </script>
 
+<svelte:head>
+  <title>
+    EasyRLS | All schemas
+  </title>
+</svelte:head>
+
 <div class="max-w-6xl mx-auto p-6">
   <SchemaList
     {schemas}

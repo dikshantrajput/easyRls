@@ -21,6 +21,12 @@
   };
 </script>
 
+<svelte:head>
+  <title>
+    EasyRLS | All Tables
+  </title>
+</svelte:head>
+
 <div class="max-w-6xl mx-auto p-6">
   <TableList {schemaName} {tables} on:manage={handleActionClick} />
 </div>

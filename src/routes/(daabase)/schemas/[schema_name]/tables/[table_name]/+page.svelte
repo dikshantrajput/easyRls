@@ -172,6 +172,12 @@
   };
 </script>
 
+<svelte:head>
+  <title>
+    EasyRLS | All Policies
+  </title>
+</svelte:head>
+
 <div class="max-w-6xl mx-auto p-6">
   <PolicyManager
     bind:this={policyManagerInstance}
