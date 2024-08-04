@@ -177,7 +177,7 @@
   }
 
   const navigateBack = () => {
-    goto(`/schemas/base/tables?${$page.url.searchParams.toString()}`);
+    goto(`/app/schemas/base/tables?${$page.url.searchParams.toString()}`);
   };
 </script>
 

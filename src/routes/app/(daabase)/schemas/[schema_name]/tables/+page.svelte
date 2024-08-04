@@ -9,7 +9,7 @@
 
   const manageTableRls = (tableName: string) => {
     goto(
-      `/schemas/${schemaName}/tables/${tableName}?db-url=${encodeURIComponent(dbUrl)}`,
+      `/app/schemas/${schemaName}/tables/${tableName}?db-url=${encodeURIComponent(dbUrl)}`,
     );
   };
 

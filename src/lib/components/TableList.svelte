@@ -27,7 +27,7 @@
   };
 
   const navigateBack = () => {
-    goto(`/schemas?${$page.url.searchParams.toString()}`);
+    goto(`/app/schemas?${$page.url.searchParams.toString()}`);
   };
 </script>
 
